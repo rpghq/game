@@ -1,0 +1,29 @@
+{
+  "include": ["src"],
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "baseUrl": "src",
+    "outDir": "lib",
+    "tsBuildInfoFile": "lib/.tsbuildinfo",
+
+    "composite": true,
+    "declaration": true,
+    
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noEmitOnError": true,
+    "importHelpers": true,
+    "noEmitHelpers": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

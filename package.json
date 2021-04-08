@@ -1,0 +1,28 @@
+{
+  "name": "@rpghq/game",
+  "version": "1.0.0",
+  "description": "Lógica, implementação e bibliotecas para o game mode.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpghq/game.git"
+  },
+  "keywords": [
+    "rpg",
+    "game",
+    "gamemode",
+    "altv"
+  ],
+  "author": "RPGHQ",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/rpghq/game/issues"
+  },
+  "homepage": "https://github.com/rpghq/game#readme",
+  "workspaces": [
+    "libs/*",
+    "apps/*"
+  ]
+}
