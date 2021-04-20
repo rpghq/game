@@ -2,10 +2,6 @@ import { Component } from './component';
 
 export type EntityId = number;
 
-export interface EntityList {
-  [Symbol.iterator](): IterableIterator<Entity>;
-}
-
 /** Contrato para entidade a ser usado por comandos e sistemas. */
 export interface Entity {
   id: EntityId;

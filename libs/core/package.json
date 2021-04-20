@@ -4,5 +4,12 @@
   "module": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "license": "UNLICENSED",
-  "private": false
+  "private": false,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "ts-jest": "^26.5.5"
+  }
 }
