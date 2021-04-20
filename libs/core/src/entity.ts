@@ -13,14 +13,14 @@ export interface Entity {
    * Checa se componentes estão acoplados ou não a entidade.
    * @param component Componente a ser verificado.
    */
-  has(...components: typeof Component[]): Promise<boolean>;
+  has(...components: typeof Component[]): boolean;
 
   /**
    * Obtém a instância de um componente.
    * @param component Componente a ser obtido.
    * @throws Deve retornar erro caso componente não esteja acoplado.
    */
-  get<T extends Component>(component: { new (...args: unknown[]): T }): Promise<T>;
+  get<T extends Component>(component: { new (...args: unknown[]): T }): T;
 
   /**
    * Acopla um componente a uma entidade.
@@ -28,7 +28,7 @@ export interface Entity {
    * @param data Dados a serem populados na instância do componente.
    * @throws Deve retornar erro caso componente já esteja acoplado.
    */
-  put<T extends Component>(component: { new (...args: unknown[]): T }, data: T): Promise<void>;
+  put<T extends Component>(component: { new (...args: unknown[]): T }, data: T): void;
 
   /**
    * Atualiza os dados de um componente em uma entidade.
@@ -36,12 +36,12 @@ export interface Entity {
    * @param data Dados parciais a serem populados na instância do componente.
    * @throws Deve retornar erro caso componente não esteja acoplado.
    */
-  update<T extends Component>(component: { new (...args: unknown[]): T }, data: T): Promise<void>;
+  update<T extends Component>(component: { new (...args: unknown[]): T }, data: T): void;
 
   /**
    * Remove um componente da entidade.
    * @param component Componente a ser removido.
    * @throws Deve retornar erro caso componente não esteja acoplado.
    */
-  remove(component: typeof Component): Promise<void>;
+  remove(component: typeof Component): void;
 }

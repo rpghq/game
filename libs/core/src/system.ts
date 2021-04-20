@@ -1,4 +1,3 @@
-import { World } from './world';
 import { EntityList } from './entity';
 
 export abstract class System {
@@ -8,5 +7,5 @@ export abstract class System {
     this.query = query;
   }
 
-  abstract run(entity: EntityList, world: World): Promise<void>;
+  abstract run(entity: EntityList): Promise<void>;
 }
