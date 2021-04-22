@@ -1,5 +1,5 @@
 import {
-  CommandParameter,
+  Parameter,
   Component,
   Constructor,
   Criteria,
@@ -18,7 +18,7 @@ export type SchemaValueInput =
   | Constructor<Component>
   | Criteria
   | Query<QueryModifier>
-  | CommandParameter<boolean>;
+  | Parameter<boolean>;
 
 export type MapSchemaValue<
   TInput extends SchemaValueInput,
@@ -86,7 +86,7 @@ export function schemaValueFromInput<
 }
 
 export type MapSchema<TInput extends Record<string, SchemaValueInput>> = {
-  [TInputKey in keyof TInput]: TInput[TInputKey] extends CommandParameter<infer TRequired>
+  [TInputKey in keyof TInput]: TInput[TInputKey] extends Parameter<infer TRequired>
     ? MapSchemaValue<TInput[TInputKey], TRequired>
     : MapSchemaValue<TInput[TInputKey], true>;
 };

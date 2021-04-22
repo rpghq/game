@@ -1,2 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export abstract class Trigger<THandlerArguments = unknown, THandlerResponse = unknown> {}
+export class Trigger<TArgs, TRes> {
+  public readonly args: TArgs;
+  public readonly res: TRes;
+
+  constructor(args: TArgs, res: TRes) {
+    this.args = args;
+    this.res = res;
+  }
+}

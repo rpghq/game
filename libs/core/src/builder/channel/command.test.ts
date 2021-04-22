@@ -1,8 +1,8 @@
 import { expectType } from 'ts-expect';
-import { Component, PrimitiveParameter, Query, QueryModifier, QueryParameter } from '../types';
+import { Component, PrimitiveParameter, Query, QueryModifier, QueryParameter } from '../../types';
 import { command } from './command';
-import { optional } from './parameter';
-import { and, multi, single } from './resource';
+import { optional } from '../schema';
+import { and, multi, single } from '../resource';
 
 describe('builder command', () => {
   it('command', () => {

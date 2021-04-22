@@ -1,6 +1,6 @@
-import { Command, Component, Constructor, Query, QueryModifier } from '../types';
-import { MapSchema, schemaFromInput, SchemaValueInput } from './parameter';
-import { single } from './resource';
+import { Command, Component, Constructor, Query, QueryModifier } from '../../types';
+import { single } from '../resource';
+import { MapSchema, schemaFromInput, SchemaValueInput } from '../schema';
 
 export function command<TArgs extends Record<string, SchemaValueInput>, TRes extends Record<string, SchemaValueInput>>(
   source: Query<QueryModifier.SINGLE> | Constructor<Component> | Constructor<Component>[],

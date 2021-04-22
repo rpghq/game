@@ -1,18 +1,12 @@
-import { Event } from '../event';
-import { Constructor } from '../utility';
+import { Parameter } from '../../types';
+import { Event } from '../channel';
 import { Trigger } from './trigger';
 
-export type EventTriggerInput<T> = {
-  source: T;
-};
+export class EventTrigger<T extends Record<string, Parameter<boolean>>> extends Trigger<T, Record<string, never>> {
+  public readonly event: Event<T>;
 
-export type EventTriggerOutput = Record<string, never>;
-
-export class EventTrigger<T extends Event> extends Trigger<EventTriggerInput<T>, EventTriggerOutput> {
-  public readonly event: Constructor<T>;
-
-  constructor(event: Constructor<T>) {
-    super();
+  constructor(event: Event<T>) {
+    super(event.args, {});
     this.event = event;
   }
 }

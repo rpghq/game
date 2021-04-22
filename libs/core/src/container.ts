@@ -1,7 +1,5 @@
-import { Command, Component, Constructor, Event, System } from './types';
-
-export type EntryTypes = Constructor<Component> | Constructor<Event> | Command | System;
+import { ChannelTypes } from './types';
 
 export interface Container {
-  register: (element: EntryTypes) => void;
+  registerChannel: (element: ChannelTypes) => void;
 }

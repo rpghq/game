@@ -1,5 +1,6 @@
-import { Entity } from 'types/entity';
-import { Command, CommandParameter } from '../command';
+import { Parameter } from '../schema';
+import { Command } from '../channel';
+import { Entity } from '../entity';
 
 export type CommandTriggerInput<TParameters> = {
   source: Entity;
@@ -14,7 +15,7 @@ export type CommandTriggerOutput<TSuccess extends boolean, TExtra> = {
 } & TExtra;
 
 export class CommandTrigger<
-  TCommand extends Command<Record<string, CommandParameter<boolean>>, Record<string, CommandParameter<boolean>>>
+  TCommand extends Command<Record<string, Parameter<boolean>>, Record<string, Parameter<boolean>>>
 > {
   public readonly command: TCommand;
 
