@@ -70,8 +70,30 @@ describe('builder command', () => {
   it('command', () => {
     const FooComponent = class extends Component {};
 
-    const cmd = command(
+    const cmdQuery = command(
       single(FooComponent),
+      {
+        numberReq: Number,
+        numberOpt: optional(Number),
+        componentReq: FooComponent,
+        componentOpt: optional(FooComponent),
+      },
+      {},
+    );
+
+    const cmdComponent = command(
+      FooComponent,
+      {
+        numberReq: Number,
+        numberOpt: optional(Number),
+        componentReq: FooComponent,
+        componentOpt: optional(FooComponent),
+      },
+      {},
+    );
+
+    const cmdComponenArr = command(
+      [FooComponent],
       {
         numberReq: Number,
         numberOpt: optional(Number),
@@ -88,8 +110,11 @@ describe('builder command', () => {
       componentOpt: QueryParameter<Query<QueryModifier.SINGLE>, false>;
     };
 
-    expectType<ExpectedArgsType>(cmd.args);
-    expect(cmd).toEqual({
+    expectType<ExpectedArgsType>(cmdQuery.args);
+    expectType<ExpectedArgsType>(cmdComponent.args);
+    expectType<ExpectedArgsType>(cmdComponenArr.args);
+
+    const expectedResult = {
       source: single(FooComponent),
       args: {
         numberReq: new PrimitiveParameter(Number, true),
@@ -98,6 +123,10 @@ describe('builder command', () => {
         componentOpt: new QueryParameter(single(FooComponent), false),
       },
       res: {},
-    });
+    };
+
+    expect(cmdQuery).toEqual(expectedResult);
+    expect(cmdComponent).toEqual(expectedResult);
+    expect(cmdComponenArr).toEqual(expectedResult);
   });
 });
