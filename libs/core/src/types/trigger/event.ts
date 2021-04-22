@@ -1,3 +1,4 @@
+import { Event } from '../event';
 import { Constructor } from '../utility';
 import { Trigger } from './trigger';
 

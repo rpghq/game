@@ -1,5 +1,5 @@
 import { Entity } from '../entity';
-import { Query, QueryModifier } from '../resource';
+import { Criteria } from '../resource';
 import { Trigger } from './trigger';
 
 export type ChangeTriggerInput = {
@@ -9,10 +9,10 @@ export type ChangeTriggerInput = {
 export type ChangeTriggerOutput = Record<string, never>;
 
 export class ChangeTrigger extends Trigger<ChangeTriggerInput, ChangeTriggerOutput> {
-  public readonly source: Query<QueryModifier.SINGLE>;
+  public readonly criteria: Criteria;
 
-  constructor(source: Query<QueryModifier.SINGLE>) {
+  constructor(criteria: Criteria) {
     super();
-    this.source = source;
+    this.criteria = criteria;
   }
 }
