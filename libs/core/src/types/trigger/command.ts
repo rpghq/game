@@ -1,6 +1,5 @@
 import { Entity } from 'types/entity';
-import { Command } from '../command';
-import { Trigger } from './trigger';
+import { Command, CommandParameter } from '../command';
 
 export type CommandTriggerInput<TParameters> = {
   source: Entity;
@@ -15,13 +14,11 @@ export type CommandTriggerOutput<TSuccess extends boolean, TExtra> = {
 } & TExtra;
 
 export class CommandTrigger<
-  TInput extends CommandTriggerInput<unknown>,
-  TOutput extends CommandTriggerOutput<boolean, unknown>
-> extends Trigger<TInput, TOutput> {
-  public readonly command: Command;
+  TCommand extends Command<Record<string, CommandParameter<boolean>>, Record<string, CommandParameter<boolean>>>
+> {
+  public readonly command: TCommand;
 
-  constructor(command: Command) {
-    super();
+  constructor(command: TCommand) {
     this.command = command;
   }
 }

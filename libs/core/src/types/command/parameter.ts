@@ -1,29 +1,27 @@
-import { Criteria, Query, QueryModifier } from '../resource';
+import { Query, QueryModifier } from '../resource';
 
-export class CommandParameter<T extends boolean> {
-  public readonly required: T;
-
-  constructor(required: T) {
-    this.required = required;
-  }
+export interface CommandParameter<T extends boolean> {
+  readonly required: T;
 }
 
 export type PrimitiveConstructorTypes = NumberConstructor | StringConstructor | BooleanConstructor;
 
-export class PrimitiveParameter<T extends PrimitiveConstructorTypes, U extends boolean> extends CommandParameter<U> {
+export class PrimitiveParameter<T extends PrimitiveConstructorTypes, U extends boolean> implements CommandParameter<U> {
   public readonly value: T;
+  public readonly required: U;
 
   constructor(value: T, required: U) {
-    super(required);
     this.value = value;
+    this.required = required;
   }
 }
 
-export class QueryParameter<T extends QueryModifier, U extends boolean> extends CommandParameter<U> {
-  public readonly query: Query<T>;
+export class QueryParameter<T extends Query<QueryModifier>, U extends boolean> implements CommandParameter<U> {
+  public readonly query: T;
+  public readonly required: U;
 
-  constructor(criteria: Criteria, modifier: T, required: U) {
-    super(required);
-    this.query = new Query(criteria, modifier);
+  constructor(query: T, required: U) {
+    this.query = query;
+    this.required = required;
   }
 }

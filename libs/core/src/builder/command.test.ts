@@ -1,46 +1,69 @@
-import { Component, Entity, Event } from '../types';
-import { command, optional } from './command';
-import { and, query, single } from './resource/query';
-import { system } from './system';
-import { change, event } from './trigger';
+import { expectType } from 'ts-expect';
+import { Component, PrimitiveParameter, Query, QueryModifier, QueryParameter } from '../types';
+import { optional, required } from './command';
+import { and, multi, query } from './resource/query';
 
-const FooComponent = class extends Component {};
-const BarComponent = class extends Component {};
+describe('builder command', () => {
+  it('primitive parameters', () => {
+    const numberReq = required(Number);
+    expectType<PrimitiveParameter<NumberConstructor, true>>(numberReq);
+    expect(numberReq).toEqual({ required: true, value: Number });
 
-describe('builder system', () => {
-  it('simples', () => {
-    const a = {
-      test: String,
-      testb: Boolean,
-      testn: Number,
-      testarr: [String],
-      optest: optional(String),
-      optestarr: optional([String]),
-      target: FooComponent,
-      optarget: optional(FooComponent),
-      optargetand: optional(and(FooComponent, BarComponent)),
-      optargetmulti: optional([FooComponent]),
-      optargetmultiand: optional([and(FooComponent, BarComponent)]),
-    };
+    const numberOpt = optional(Number);
+    expectType<PrimitiveParameter<NumberConstructor, false>>(numberOpt);
+    expect(numberOpt).toEqual({ required: false, value: Number });
 
-    type Expected = {
-      test: string;
-      testb: boolean;
-      testn: number;
-      testarr: string[];
-      optest: string | undefined;
-      optestarr: string[] | undefined;
-      target: Entity;
-      optarget: Entity | undefined;
-      optargetand: Entity;
-      optargetmulti: Iterable<Entity>;
-      optargetmultiand: Iterable<Entity> | undefined;
-    };
+    const stringReq = required(String);
+    expectType<PrimitiveParameter<StringConstructor, true>>(stringReq);
+    expect(stringReq).toEqual({ required: true, value: String });
 
-    const cmd = command<{ lucky: number }>(and(FooComponent, BarComponent), {
-      target: single(FooComponent),
-      reason: String,
+    const stringOpt = optional(String);
+    expectType<PrimitiveParameter<StringConstructor, false>>(stringOpt);
+    expect(stringOpt).toEqual({ required: false, value: String });
+
+    const booleanReq = required(String);
+    expectType<PrimitiveParameter<StringConstructor, true>>(booleanReq);
+    expect(booleanReq).toEqual({ required: true, value: String });
+
+    const booleanOpt = optional(Boolean);
+    expectType<PrimitiveParameter<BooleanConstructor, false>>(booleanOpt);
+    expect(booleanOpt).toEqual({ required: false, value: Boolean });
+  });
+
+  it('component parameters', () => {
+    const FooComponent = class extends Component {};
+
+    const componentReq = required(FooComponent);
+    expectType<QueryParameter<Query<QueryModifier.SINGLE>, true>>(componentReq);
+    expect(componentReq).toEqual({
+      required: true,
+      query: query(QueryModifier.SINGLE, and(FooComponent)),
     });
-    expect(cmd).toBeTruthy();
+
+    const componentOpt = optional(FooComponent);
+    expectType<QueryParameter<Query<QueryModifier.SINGLE>, false>>(componentOpt);
+    expect(componentOpt).toEqual({
+      required: false,
+      query: query(QueryModifier.SINGLE, and(FooComponent)),
+    });
+  });
+
+  it('query parameters', () => {
+    const FooComponent = class extends Component {};
+    const multiQuery = multi(FooComponent);
+
+    const queryReq = required(multiQuery);
+    expectType<QueryParameter<Query<QueryModifier.MULTI>, true>>(queryReq);
+    expect(queryReq).toEqual({
+      required: true,
+      query: multi(FooComponent),
+    });
+
+    const queryOpt = optional(multiQuery);
+    expectType<QueryParameter<Query<QueryModifier.MULTI>, false>>(queryOpt);
+    expect(queryOpt).toEqual({
+      required: false,
+      query: multi(FooComponent),
+    });
   });
 });

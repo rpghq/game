@@ -1,73 +1,117 @@
 import {
   Command,
   CommandParameter,
+  Component,
+  Constructor,
   Criteria,
-  Entity,
-  Meta,
   PrimitiveParameter,
   Query,
   QueryModifier,
   QueryParameter,
-  PrimitiveConstructorTypes,
 } from '../types';
+import { and, single } from './resource/query';
 
-export type CommandMeta<TInput, TOutput> = unknown;
+type SchemaValueInput =
+  | NumberConstructor
+  | StringConstructor
+  | BooleanConstructor
+  | Constructor<Component>
+  | Query<QueryModifier>
+  | CommandParameter<boolean>;
 
-export function command<T extends Record<string, CommandParameter<boolean>>>(
-  source: Criteria,
-  parameters: T,
-): Meta<Command, ParametersResult<T>> {
-  return new Command(new Query(source, QueryModifier.SINGLE), parameters) as Meta<Command, ParametersResult<T>>;
+type MapSchemaValue<
+  TInput extends SchemaValueInput,
+  TRequired extends boolean = true
+> = TInput extends NumberConstructor
+  ? PrimitiveParameter<NumberConstructor, TRequired>
+  : TInput extends StringConstructor
+  ? PrimitiveParameter<StringConstructor, TRequired>
+  : TInput extends BooleanConstructor
+  ? PrimitiveParameter<BooleanConstructor, TRequired>
+  : TInput extends Constructor<Component>
+  ? QueryParameter<Query<QueryModifier.SINGLE>, TRequired>
+  : TInput extends Query<QueryModifier>
+  ? QueryParameter<TInput, TRequired>
+  : TInput extends PrimitiveParameter<infer T, boolean>
+  ? PrimitiveParameter<T, TRequired>
+  : TInput extends QueryParameter<infer T, boolean>
+  ? QueryParameter<T, TRequired>
+  : never;
+
+function isParamNumber(param: unknown): param is NumberConstructor {
+  return param === Number;
 }
 
-export function required<T extends PrimitiveConstructorTypes>(
-  parameter: T | PrimitiveParameter<T, boolean>,
-): PrimitiveParameter<T, true> {
-  if (parameter instanceof PrimitiveParameter) {
-    return new PrimitiveParameter(parameter.value, true);
+function isParamString(param: unknown): param is StringConstructor {
+  return param === String;
+}
+
+function isParamBoolean(param: unknown): param is BooleanConstructor {
+  return param === Boolean;
+}
+
+function schemaValueFromInput<
+  TInput extends SchemaValueInput,
+  TRequired extends boolean,
+  TSchemaValue extends MapSchemaValue<TInput, TRequired>
+>(input: TInput, required: TRequired): TSchemaValue {
+  if (isParamNumber(input)) {
+    return (new PrimitiveParameter(input, required !== false) as unknown) as TSchemaValue;
+  } else if (isParamString(input)) {
+    return (new PrimitiveParameter(input, required !== false) as unknown) as TSchemaValue;
+  } else if (isParamBoolean(input)) {
+    return (new PrimitiveParameter(input, required !== false) as unknown) as TSchemaValue;
+  } else if ((input as Constructor<Component>).prototype instanceof Component) {
+    return (new QueryParameter(
+      single(and(input as Constructor<Component>)),
+      required !== false,
+    ) as unknown) as TSchemaValue;
+  } else if (input instanceof Query) {
+    return (new QueryParameter(input, required !== false) as unknown) as TSchemaValue;
+  } else if (input instanceof PrimitiveParameter) {
+    return (new PrimitiveParameter(input.value, required !== false) as unknown) as TSchemaValue;
+  } else if (input instanceof QueryParameter) {
+    return (new QueryParameter(input.query, required !== false) as unknown) as TSchemaValue;
   } else {
-    return new PrimitiveParameter(parameter, true);
+    throw new Error('unexpected parameter value');
   }
 }
 
-export function optional<T extends PrimitiveConstructorTypes>(
-  parameter: T | PrimitiveParameter<T, boolean>,
-): PrimitiveParameter<T, false> {
-  if (parameter instanceof PrimitiveParameter) {
-    return new PrimitiveParameter(parameter.value, false);
-  } else {
-    return new PrimitiveParameter(parameter, false);
-  }
+export function required<TInput extends SchemaValueInput, TSchemaValue extends MapSchemaValue<TInput, true>>(
+  input: TInput,
+): TSchemaValue {
+  return schemaValueFromInput(input, true);
 }
 
-const params = { lgm: required(Number), mgl: optional(String) };
-const cmd = command(1 as any, params);
+export function optional<TInput extends SchemaValueInput, TSchemaValue extends MapSchemaValue<TInput, false>>(
+  input: TInput,
+): TSchemaValue {
+  return schemaValueFromInput(input, false);
+}
 
-type Lel<T> = T extends Meta<infer U, infer V> ? V : never;
-type A = Lel<typeof cmd>;
-
-type B = ParametersResult<typeof params>;
-
-type ParametersResult<T> = {
-  [P in keyof T]: T[P] extends PrimitiveParameter<infer U, infer V>
-    ? MapRequired<MapPrimitive<U>, V>
-    : T[P] extends QueryParameter<infer U, infer V>
-    ? MapRequired<MapQuery<U>, V>
-    : never;
+type MapSchema<TInput extends Record<string, SchemaValueInput>> = {
+  [TInputKey in keyof TInput]: TInput[TInputKey] extends CommandParameter<infer TRequired>
+    ? MapSchemaValue<TInput[TInputKey], TRequired>
+    : MapSchemaValue<TInput[TInputKey], true>;
 };
 
-type MapPrimitive<T> = T extends NumberConstructor
-  ? number
-  : T extends StringConstructor
-  ? string
-  : T extends BooleanConstructor
-  ? boolean
-  : never;
+function schemaFromInput<T extends Record<string, SchemaValueInput>>(list: T): MapSchema<T> {
+  const map = Object.entries(list).map(([key, value]) => {
+    if (value instanceof PrimitiveParameter) {
+      return [key, schemaValueFromInput(value, value.required)];
+    } else if (value instanceof QueryParameter) {
+      return [key, schemaValueFromInput(value, value.required)];
+    } else {
+      return [key, schemaValueFromInput(value, true)];
+    }
+  });
+  return Object.fromEntries(map);
+}
 
-type MapQuery<T> = T extends QueryModifier.MULTI
-  ? Iterable<Entity>
-  : T extends QueryModifier.SINGLE
-  ? Entity | undefined
-  : never;
-
-type MapRequired<T, V> = V extends false ? T | undefined : T;
+export function command<TArgs extends Record<string, SchemaValueInput>, TRes extends Record<string, SchemaValueInput>>(
+  source: Criteria,
+  args: TArgs,
+  res: TRes,
+): Command<MapSchema<TArgs>, MapSchema<TRes>> {
+  return new Command(new Query(source, QueryModifier.SINGLE), schemaFromInput(args), schemaFromInput(res));
+}
