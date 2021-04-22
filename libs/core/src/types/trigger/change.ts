@@ -1,18 +1,14 @@
-import { Entity } from '../entity';
-import { Criteria } from '../resource';
+import { QueryParameter } from '../../types';
+import { Query, QueryModifier } from '../resource';
 import { Trigger } from './trigger';
 
-export type ChangeTriggerInput = {
-  source: Entity;
-};
+export class ChangeTrigger<T extends Query<QueryModifier.SINGLE>> extends Trigger<{
+  query: QueryParameter<T, true>;
+}> {
+  public readonly query: T;
 
-export type ChangeTriggerOutput = Record<string, never>;
-
-export class ChangeTrigger extends Trigger<ChangeTriggerInput, ChangeTriggerOutput> {
-  public readonly criteria: Criteria;
-
-  constructor(criteria: Criteria) {
-    super();
-    this.criteria = criteria;
+  constructor(query: T) {
+    super({ query: new QueryParameter(query, true) }, {});
+    this.query = query;
   }
 }

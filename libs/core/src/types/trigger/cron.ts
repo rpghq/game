@@ -1,14 +1,10 @@
 import { Trigger } from './trigger';
 
-export type CronTriggerInput = Record<string, never>;
-
-export type CronTriggerOutput = Record<string, never>;
-
-export class CronTrigger extends Trigger<CronTriggerInput, CronTriggerOutput> {
+export class CronTrigger extends Trigger {
   public readonly expression: string;
 
   constructor(expression: string) {
-    super();
+    super({}, {});
     this.expression = expression;
   }
 }

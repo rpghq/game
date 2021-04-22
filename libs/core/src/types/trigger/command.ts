@@ -1,25 +1,16 @@
-import { Parameter } from '../schema';
+import { Query, QueryModifier } from '../resource';
 import { Command } from '../channel';
-import { Entity } from '../entity';
-
-export type CommandTriggerInput<TParameters> = {
-  source: Entity;
-  parameters: {
-    [TKey in keyof TParameters]: TParameters[TKey];
-  };
-};
-
-export type CommandTriggerOutput<TSuccess extends boolean, TExtra> = {
-  success: TSuccess;
-  message?: string;
-} & TExtra;
+import { Parameter } from '../schema';
+import { Trigger } from './trigger';
 
 export class CommandTrigger<
-  TCommand extends Command<Record<string, Parameter<boolean>>, Record<string, Parameter<boolean>>>
-> {
-  public readonly command: TCommand;
+  TArgs extends Record<string, Parameter<boolean>>,
+  TRes extends Record<string, Parameter<boolean>>
+> extends Trigger<{ source: Query<QueryModifier.SINGLE>; params: TArgs }, TRes> {
+  public readonly command: Command<TArgs, TRes>;
 
-  constructor(command: TCommand) {
+  constructor(command: Command<TArgs, TRes>) {
+    super({ source: command.source, params: command.args }, command.res);
     this.command = command;
   }
 }
