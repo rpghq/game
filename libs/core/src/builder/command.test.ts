@@ -1,7 +1,7 @@
 import { expectType } from 'ts-expect';
 import { Component, PrimitiveParameter, Query, QueryModifier, QueryParameter } from '../types';
-import { optional, required } from './command';
-import { and, multi, query } from './resource/query';
+import { command, optional, required } from './command';
+import { multi, single } from './resource/query';
 
 describe('builder command', () => {
   it('primitive parameters', () => {
@@ -37,14 +37,14 @@ describe('builder command', () => {
     expectType<QueryParameter<Query<QueryModifier.SINGLE>, true>>(componentReq);
     expect(componentReq).toEqual({
       required: true,
-      query: query(QueryModifier.SINGLE, and(FooComponent)),
+      query: single(FooComponent),
     });
 
     const componentOpt = optional(FooComponent);
     expectType<QueryParameter<Query<QueryModifier.SINGLE>, false>>(componentOpt);
     expect(componentOpt).toEqual({
       required: false,
-      query: query(QueryModifier.SINGLE, and(FooComponent)),
+      query: single(FooComponent),
     });
   });
 
@@ -64,6 +64,40 @@ describe('builder command', () => {
     expect(queryOpt).toEqual({
       required: false,
       query: multi(FooComponent),
+    });
+  });
+
+  it('command', () => {
+    const FooComponent = class extends Component {};
+
+    const cmd = command(
+      single(FooComponent),
+      {
+        numberReq: Number,
+        numberOpt: optional(Number),
+        componentReq: FooComponent,
+        componentOpt: optional(FooComponent),
+      },
+      {},
+    );
+
+    type ExpectedArgsType = {
+      numberReq: PrimitiveParameter<NumberConstructor, true>;
+      numberOpt: PrimitiveParameter<NumberConstructor, false>;
+      componentReq: QueryParameter<Query<QueryModifier.SINGLE>, true>;
+      componentOpt: QueryParameter<Query<QueryModifier.SINGLE>, false>;
+    };
+
+    expectType<ExpectedArgsType>(cmd.args);
+    expect(cmd).toEqual({
+      source: single(FooComponent),
+      args: {
+        numberReq: new PrimitiveParameter(Number, true),
+        numberOpt: new PrimitiveParameter(Number, false),
+        componentReq: new QueryParameter(single(FooComponent), true),
+        componentOpt: new QueryParameter(single(FooComponent), false),
+      },
+      res: {},
     });
   });
 });

@@ -4,12 +4,13 @@ import {
   Component,
   Constructor,
   Criteria,
+  CriteriaItem,
+  CriteriaModifier,
   PrimitiveParameter,
   Query,
   QueryModifier,
   QueryParameter,
 } from '../types';
-import { and, single } from './resource/query';
 
 type SchemaValueInput =
   | NumberConstructor
@@ -63,7 +64,10 @@ function schemaValueFromInput<
     return (new PrimitiveParameter(input, required !== false) as unknown) as TSchemaValue;
   } else if ((input as Constructor<Component>).prototype instanceof Component) {
     return (new QueryParameter(
-      single(and(input as Constructor<Component>)),
+      new Query(
+        new Criteria([new CriteriaItem(input as Constructor<Component>, true)], CriteriaModifier.AND),
+        QueryModifier.SINGLE,
+      ),
       required !== false,
     ) as unknown) as TSchemaValue;
   } else if (input instanceof Query) {
@@ -109,9 +113,9 @@ function schemaFromInput<T extends Record<string, SchemaValueInput>>(list: T): M
 }
 
 export function command<TArgs extends Record<string, SchemaValueInput>, TRes extends Record<string, SchemaValueInput>>(
-  source: Criteria,
+  source: Query<QueryModifier.SINGLE>,
   args: TArgs,
   res: TRes,
 ): Command<MapSchema<TArgs>, MapSchema<TRes>> {
-  return new Command(new Query(source, QueryModifier.SINGLE), schemaFromInput(args), schemaFromInput(res));
+  return new Command(source, schemaFromInput(args), schemaFromInput(res));
 }
