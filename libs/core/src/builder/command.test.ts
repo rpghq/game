@@ -1,7 +1,7 @@
 import { expectType } from 'ts-expect';
 import { Component, PrimitiveParameter, Query, QueryModifier, QueryParameter } from '../types';
 import { command, optional, required } from './command';
-import { multi, single } from './resource/query';
+import { and, multi, single } from './resource/query';
 
 describe('builder command', () => {
   it('primitive parameters', () => {
@@ -128,5 +128,39 @@ describe('builder command', () => {
     expect(cmdQuery).toEqual(expectedResult);
     expect(cmdComponent).toEqual(expectedResult);
     expect(cmdComponenArr).toEqual(expectedResult);
+  });
+
+  it('examples', () => {
+    const Admin = class extends Component {};
+    const Player = class extends Component {};
+    const Connected = class extends Component {};
+
+    const KickCommand = command(Admin, { target: and(Player, Connected), reason: optional(String) }, {});
+
+    expect(KickCommand).toEqual({
+      source: single(Admin),
+      args: {
+        target: new QueryParameter(single(Player, Connected), true),
+        reason: new PrimitiveParameter(String, false),
+      },
+      res: {},
+    });
+
+    const LoggedAdminKickManyCommand = command(
+      [Admin, Connected],
+      { target: multi(Player, Connected), reason: optional(String) },
+      { kicked: multi(Player, Connected) },
+    );
+
+    expect(LoggedAdminKickManyCommand).toEqual({
+      source: single(Admin, Connected),
+      args: {
+        target: new QueryParameter(multi(Player, Connected), true),
+        reason: new PrimitiveParameter(String, false),
+      },
+      res: {
+        kicked: new QueryParameter(multi(Player, Connected), true),
+      },
+    });
   });
 });

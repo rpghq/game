@@ -18,6 +18,7 @@ type SchemaValueInput =
   | StringConstructor
   | BooleanConstructor
   | Constructor<Component>
+  | Criteria
   | Query<QueryModifier>
   | CommandParameter<boolean>;
 
@@ -31,6 +32,8 @@ type MapSchemaValue<
   : TInput extends BooleanConstructor
   ? PrimitiveParameter<BooleanConstructor, TRequired>
   : TInput extends Constructor<Component>
+  ? QueryParameter<Query<QueryModifier.SINGLE>, TRequired>
+  : TInput extends Criteria
   ? QueryParameter<Query<QueryModifier.SINGLE>, TRequired>
   : TInput extends Query<QueryModifier>
   ? QueryParameter<TInput, TRequired>
@@ -71,6 +74,8 @@ function schemaValueFromInput<
       ),
       required !== false,
     ) as unknown) as TSchemaValue;
+  } else if (input instanceof Criteria) {
+    return (new QueryParameter(new Query(input, QueryModifier.SINGLE), required !== false) as unknown) as TSchemaValue;
   } else if (input instanceof Query) {
     return (new QueryParameter(input, required !== false) as unknown) as TSchemaValue;
   } else if (input instanceof PrimitiveParameter) {
