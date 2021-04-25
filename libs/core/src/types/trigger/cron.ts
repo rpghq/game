@@ -4,7 +4,7 @@ export class CronTrigger extends Trigger {
   public readonly expression: string;
 
   constructor(expression: string) {
-    super({}, {});
+    super(undefined, {}, {});
     this.expression = expression;
   }
 }

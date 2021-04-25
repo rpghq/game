@@ -1,17 +1,10 @@
-import { Resource, System, Trigger } from '../types';
+import { Parameter, Query, QueryModifier, Resource, System, Trigger } from '../types';
 
-export type Handler<T> = T extends RichSystem<infer U, infer V, infer W>
-  ? (resources: U, trigger: V) => W | Promise<W>
-  : never;
-
-export type RichSystem<TResources, TTrigger, TResult> = System;
-
-type PullTriggerInput<T> = T extends Trigger<infer TInput, infer TOutput> ? TInput : never;
-type PullTriggerOutput<T> = T extends Trigger<infer TInput, infer TOutput> ? TOutput : never;
-
-export function system<T extends Record<string, Resource<unknown>>, U extends Trigger>(
-  resources: T,
-  trigger: U,
-): RichSystem<T, PullTriggerInput<U>, PullTriggerOutput<U>> {
+export function system<
+  TResources extends Record<string, Resource>,
+  TSource extends Query<QueryModifier.SINGLE> | void = void,
+  TArgs extends Record<string, Parameter<boolean>> = Record<string, never>,
+  TRes extends Record<string, Parameter<boolean>> = Record<string, never>
+>(resources: TResources, trigger: Trigger<TSource, TArgs, TRes>): System<TResources, TSource, TArgs, TRes> {
   return new System(resources, trigger);
 }

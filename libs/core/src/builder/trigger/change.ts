@@ -1,6 +1,8 @@
-import { ChangeTrigger, Component, Constructor, Criteria, CriteriaItem } from '../../types';
-import { and } from '../resource';
+import { ChangeTrigger, Component, Constructor, Query, QueryModifier } from '../../types';
+import { single } from '../resource';
 
-export function change(...items: (Criteria | CriteriaItem | Constructor<Component>)[]): ChangeTrigger {
-  return new ChangeTrigger(and(...items));
+export function change(
+  source: Query<QueryModifier.SINGLE> | Constructor<Component> | Constructor<Component>[],
+): ChangeTrigger {
+  return new ChangeTrigger(source instanceof Query ? source : single(...(Array.isArray(source) ? source : [source])));
 }
